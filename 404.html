@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Radiko Pages Player</title>
+<meta name="description" content="バックエンドなしで動作する、GitHub Pages配布のブラウザ内Radiko AACプレイヤー">
+<style>
+:root{color-scheme:dark;--bg:#0a1020;--card:#151d34;--line:#2c385b;--text:#f4f7ff;--muted:#b2bdd8;--accent:#78aaff;--warn:#ffd166}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#233466 0,#0a1020 52%);color:var(--text);font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{width:min(820px,100%);margin:auto;padding:48px 18px 72px}h1{font-size:clamp(30px,6vw,52px);line-height:1.1;margin:0 0 12px}.lead{font-size:18px;color:var(--muted);margin:0 0 28px}.card{background:rgba(21,29,52,.96);border:1px solid var(--line);border-radius:20px;padding:24px;margin:18px 0;box-shadow:0 22px 60px #0006}h2{margin-top:0;font-size:22px}.bookmark{display:inline-block;text-decoration:none;background:var(--accent);color:#071226;font-weight:800;padding:14px 24px;border-radius:999px;box-shadow:0 10px 28px #285ba777}.bookmark:hover{filter:brightness(1.08)}ol{padding-left:1.4rem}li{margin:.7rem 0}code{background:#0b1224;border:1px solid var(--line);padding:.15em .4em;border-radius:6px}.note{border-left:4px solid var(--warn);padding:10px 14px;background:#211e17;color:#f8e8b2;border-radius:8px}.small{font-size:13px;color:var(--muted)}button{font:inherit;border:1px solid var(--line);background:#273354;color:var(--text);border-radius:10px;padding:9px 14px;cursor:pointer}textarea{width:100%;height:110px;margin-top:10px;padding:10px;background:#090f1e;color:#cbd6f3;border:1px solid var(--line);border-radius:10px;font:11px/1.4 ui-monospace,monospace}a{color:#9dc1ff}
+</style>
+</head>
+<body><main>
+<h1>📻 Radiko Pages Player</h1>
+<p class="lead">サーバー、yt-dlp、FFmpeg、MP3変換なし。GitHub Pagesの静的ファイルと利用者のブラウザだけでAACを取得・デコード・再生します。</p>
+<section class="card">
+<h2>セットアップ</h2>
+<ol>
+<li>下の青いボタンをブックマークバーへドラッグして登録します。</li>
+<li>登録したブックマークを1回クリックすると、<code>api.radiko.jp</code>へ移動します。</li>
+<li>移動後、同じブックマークをもう一度クリックします。</li>
+<li>開いたプレイヤーで地域・放送局を選び、<strong>再生</strong>を押します。</li>
+</ol>
+<p><a id="bookmarklet" class="bookmark" href="#">📻 Radiko Player を登録</a></p>
+<p class="small">ブックマークバーが見えない場合は、ブラウザ設定で表示してください。ポップアップが拒否された場合は、このサイトと api.radiko.jp のポップアップを許可します。</p>
+<button id="copy">ブックマークレットをコピー</button>
+<details><summary>コードを表示</summary><textarea id="code" readonly></textarea></details>
+</section>
+<section class="card">
+<h2>どう動くか</h2>
+<ul>
+<li>PagesはHTML・JavaScript・WASMを配布するだけです。</li>
+<li>認証、HLS取得、AAC→PCMデコード、音声出力はすべて利用者のブラウザ内で行います。</li>
+<li>ストリームを中継するサーバーはなく、音声はこのサイトへ送信されません。</li>
+<li>Navidrome/Subsonicへ登録できる中継URLは生成しません。</li>
+</ul>
+</section>
+<section class="card">
+<p class="note"><strong>注意:</strong> 非公式の実験用ソフトウェアです。利用前にRadikoの利用規約、権利、地域制限、適用法を確認し、個人の責任で利用してください。Radikoとは無関係です。</p>
+<p class="small">ブックマークレットはRadiko APIのオリジンを継承した空のウィンドウへ、このリポジトリのコードを読み込みます。公開コードを確認し、信頼できる配布元だけを使用してください。</p>
+</section>
+</main>
+<script>
+(() => {
+  const playerUrl = new URL('player.js', new URL('./', location.href)).href;
+  const code = `javascript:(()=>{const u=${JSON.stringify(playerUrl)};if(location.hostname!=="api.radiko.jp"){location.href="https://api.radiko.jp/";return}const w=window.open("about:blank","radikoPagesPlayer","popup=yes,width=620,height=820,resizable=yes,scrollbars=yes");if(!w){alert("ポップアップを許可してください");return}try{w.document.open();w.document.write("<!doctype html><html><head><meta charset=utf-8><title>Radiko Player</title></head><body style='margin:0;background:#0b1020;color:#fff;font:16px system-ui;padding:24px'>プレイヤーを読み込んでいます…</body></html>");w.document.close();const s=w.document.createElement("script");s.src=u+(u.includes("?")?"&":"?")+"t="+Date.now();s.onerror=()=>{w.document.body.textContent="player.js の読み込みに失敗しました"};w.document.head.appendChild(s);w.focus()}catch(e){alert("プレイヤーを開けません: "+e)}})()`;
+  const link = document.getElementById('bookmarklet');
+  const text = document.getElementById('code');
+  link.href = code;
+  text.value = code;
+  document.getElementById('copy').addEventListener('click', async (event) => {
+    try { await navigator.clipboard.writeText(code); event.currentTarget.textContent = 'コピーしました'; }
+    catch (_) { text.hidden = false; text.select(); document.execCommand('copy'); event.currentTarget.textContent = 'コピーしました'; }
+  });
+})();
+</script>
+</body></html>
