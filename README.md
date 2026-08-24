@@ -10,6 +10,11 @@ GitHub Pagesなどの**静的ホスティングだけ**で配布できる、ブ�
 
 認証、HLS playlist/segment取得、AACデコード、PCM再生をすべて利用者のブラウザ内で実行します。AACは同梱したFAAD2ベースのWebAssemblyデコーダーで処理するため、ブラウザがHE-AACをネイティブ再生できない場合でも動作します。
 
+## 公開プレイヤー
+
+**https://nmt3325.github.io/radiko-pages-player/**
+
+
 ## 使い方
 
 1. Pagesを開く。
@@ -44,6 +49,15 @@ GitHub Pagesなどの**静的ホスティングだけ**で配布できる、ブ�
 ```bash
 python3 -m http.server 8000
 ```
+
+## 動作確認
+
+2026-08-25に公開Pagesから次を確認済みです。
+
+- 北海道 `JP1` / FM NORTH WAVE: 3 segment、15.062秒分のPCMを連続スケジュール
+- 沖縄 `JP47` / FM沖縄: playlist更新を跨いで5 segment、24.705秒分を連続スケジュール、underrun 0
+- 大阪 `JP27` / ABCラジオ: 停止後の地域切替・再認証・再生再開
+- いずれも48kHz / Stereo、非ゼロPCM、エラーなし
 
 ## 重要な制約
 
